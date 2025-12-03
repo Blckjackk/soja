@@ -1,7 +1,7 @@
-import React from 'react';
-import { Modal, StyleSheet, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
-import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { Dimensions, Modal, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 

@@ -1,7 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Text, Button } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
+import { Button, Text } from 'react-native-paper';
 
 interface KontakDarurat {
   id: number;

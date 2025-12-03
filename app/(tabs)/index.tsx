@@ -1,10 +1,10 @@
-import LocationModal from '@/components/LocationModal';
-import PinModal from '@/components/PinModal';
-import PengaturanModal from '@/components/PengaturanModal';
 import DaruratModal from '@/components/DaruratModal';
+import LocationModal from '@/components/LocationModal';
+import PengaturanModal from '@/components/PengaturanModal';
+import PinModal from '@/components/PinModal';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, Image, StyleSheet, View, Linking } from 'react-native';
+import { Dimensions, Image, Linking, StyleSheet, View } from 'react-native';
 import { Avatar, Card, FAB, Text } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
