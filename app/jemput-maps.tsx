@@ -31,7 +31,31 @@ export default function JemputMapsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header dengan tombol kembali */}
+      {/* Google Maps Full Screen sebagai background */}
+      <MapView
+        provider={PROVIDER_GOOGLE}
+        style={styles.map}
+        region={region}
+        onRegionChangeComplete={setRegion}
+      >
+        {/* Marker Lokasi Awal (merah) */}
+        <Marker
+          coordinate={lokasiAwal}
+          title="Lokasi Awal"
+          description="Jl. Campaka No. 6, Lomba 5, Bandung"
+          pinColor="#FF6B4A"
+        />
+
+        {/* Marker Lokasi Tujuan (hijau/cyan) */}
+        <Marker
+          coordinate={lokasiTujuan}
+          title="Lokasi Tujuan"
+          description="Jl. Kebon Kol. 7, Lomba 5, Bandung"
+          pinColor="#4ECDC4"
+        />
+      </MapView>
+
+      {/* Header dengan tombol kembali - Overlay di atas maps */}
       <View style={styles.header}>
         <TouchableOpacity 
           style={styles.backButton}
@@ -41,36 +65,11 @@ export default function JemputMapsScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Google Maps dengan rounded corners */}
-      <View style={styles.mapWrapper}>
-        <View style={styles.mapContainer}>
-          <MapView
-            provider={PROVIDER_GOOGLE}
-            style={styles.map}
-            region={region}
-            onRegionChangeComplete={setRegion}
-          >
-            {/* Marker Lokasi Awal (merah) */}
-            <Marker
-              coordinate={lokasiAwal}
-              title="Lokasi Awal"
-              description="Jl. Campaka No. 6, Lomba 5, Bandung"
-              pinColor="#FF6B4A"
-            />
-
-            {/* Marker Lokasi Tujuan (hijau/cyan) */}
-            <Marker
-              coordinate={lokasiTujuan}
-              title="Lokasi Tujuan"
-              description="Jl. Kebon Kol. 7, Lomba 5, Bandung"
-              pinColor="#4ECDC4"
-            />
-          </MapView>
-        </View>
-      </View>
-
-      {/* Bottom Panel dengan Info */}
-      <View style={styles.bottomPanel}>
+      {/* Bottom Sheet yang bisa di-scroll */}
+      <View style={styles.bottomSheet}>
+        {/* Handle bar untuk indikator drag */}
+        <View style={styles.handleBar} />
+        
         {/* Status Card dengan warna kuning */}
         <Card style={styles.statusCard} mode="elevated">
           <Card.Content style={styles.statusContent}>
@@ -154,7 +153,9 @@ export default function JemputMapsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a2332',
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
   header: {
     position: 'absolute',
@@ -168,32 +169,50 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   backButtonText: {
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
   },
-  mapWrapper: {
-    paddingTop: 40,
-    paddingHorizontal: 15,
-    paddingBottom: 10,
-  },
-  mapContainer: {
-    height: height * 0.50,
-    borderRadius: 25,
-    overflow: 'hidden',
-    backgroundColor: '#e0e0e0',
-    elevation: 4,
-  },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  bottomPanel: {
-    flex: 1,
+  bottomSheet: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: '#1a2332',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingTop: 8,
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: 30,
+    maxHeight: height * 0.75,
+    minHeight: height * 0.35,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  handleBar: {
+    width: 60,
+    height: 5,
+    backgroundColor: '#ffffff40',
+    borderRadius: 3,
+    alignSelf: 'center',
+    marginTop: 8,
+    marginBottom: 12,
+  },
+    height: 5,
+    backgroundColor: '#ffffff40',
+    borderRadius: 3,
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 16,
   },
   statusCard: {
     backgroundColor: '#FDB44B',

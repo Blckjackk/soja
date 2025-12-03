@@ -1,8 +1,9 @@
 import LocationModal from '@/components/LocationModal';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, Image, StyleSheet, View } from 'react-native';
-import { Avatar, Card, FAB, Text } from 'react-native-paper';
+import { Dimensions, Image, StyleSheet, View, Modal, Linking, TouchableOpacity } from 'react-native';
+import { Avatar, Card, FAB, Text, Button } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -10,11 +11,25 @@ export default function HomeScreen() {
   const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
+  const [showDaruratModal, setShowDaruratModal] = useState(false);
+
+  // Data kontak darurat
+  const kontakDarurat = [
+    { id: 1, nama: 'Orang Tua', telepon: '08123456789' },
+    { id: 2, nama: 'Rumah Sakit', telepon: '119' },
+    { id: 3, nama: 'Polisi', telepon: '110' },
+  ];
+
+  const handleCallDarurat = (telepon: string) => {
+    Linking.openURL(`tel:${telepon}`);
+  };
 
   const handleMenuPress = (menu: string) => {
     if (menu === 'jemput' || menu === 'antar') {
       setModalTitle(menu === 'jemput' ? 'Jemput' : 'Antar');
       setModalVisible(true);
+    } else if (menu === 'darurat') {
+      setShowDaruratModal(true);
     }
   };
 
@@ -100,6 +115,7 @@ export default function HomeScreen() {
           <Card 
             style={[styles.menuCard, styles.menuCardDarurat]}
             mode="elevated"
+            onPress={() => handleMenuPress('darurat')}
           >
             <Card.Content style={styles.menuContent}>
               <Image 
@@ -148,6 +164,56 @@ export default function HomeScreen() {
         onSubmit={handleLocationSubmit}
         title={modalTitle}
       />
+
+      {/* Modal Kontak Darurat */}
+      <Modal
+        visible={showDaruratModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowDaruratModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Kontak Darurat</Text>
+            
+            <View style={styles.kontakContainer}>
+              {kontakDarurat.map((kontak) => (
+                <View key={kontak.id} style={styles.kontakItem}>
+                  <View style={styles.kontakInfo}>
+                    <Text style={styles.kontakNama}>{kontak.nama}</Text>
+                    <Text style={styles.kontakTelepon}>No. Telepon</Text>
+                  </View>
+                  <TouchableOpacity 
+                    style={styles.callButton}
+                    onPress={() => handleCallDarurat(kontak.telepon)}
+                  >
+                    <Ionicons name="call" size={24} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+
+            <Button 
+              mode="contained" 
+              style={styles.tutupButton}
+              labelStyle={styles.tutupButtonLabel}
+              onPress={() => setShowDaruratModal(false)}
+            >
+              Tutup
+            </Button>
+
+            <View style={styles.footerText}>
+              <Text style={styles.footerLabel}>tekan untuk lebih</Text>
+              <Text style={styles.footerLabel}>Voice Chat</Text>
+            </View>
+
+            <View style={styles.voiceButtonContainer}>
+              <View style={styles.voiceCircle} />
+              <View style={styles.voiceLine} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -243,5 +309,99 @@ const styles = StyleSheet.create({
   },
   voiceButton: {
     backgroundColor: '#FDB44B',
+  },
+  // Modal Darurat Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContainer: {
+    backgroundColor: '#000',
+    borderRadius: 30,
+    padding: 20,
+    width: '90%',
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  kontakContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 16,
+  },
+  kontakItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  kontakInfo: {
+    flex: 1,
+  },
+  kontakNama: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  kontakTelepon: {
+    fontSize: 12,
+    color: '#666',
+  },
+  callButton: {
+    backgroundColor: '#FF6B4A',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+  },
+  tutupButton: {
+    backgroundColor: '#FDB44B',
+    borderRadius: 25,
+    paddingVertical: 8,
+  },
+  tutupButtonLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000',
+  },
+  footerText: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  footerLabel: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+  },
+  voiceButtonContainer: {
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  voiceCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#8B7355',
+  },
+  voiceLine: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#666',
+    marginTop: 8,
+    borderRadius: 2,
   },
 });
