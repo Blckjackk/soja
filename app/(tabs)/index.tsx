@@ -1,9 +1,11 @@
 import LocationModal from '@/components/LocationModal';
-import { Ionicons } from '@expo/vector-icons';
+import PinModal from '@/components/PinModal';
+import PengaturanModal from '@/components/PengaturanModal';
+import DaruratModal from '@/components/DaruratModal';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, Image, Linking, Modal, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { Avatar, Button, Card, FAB, Text } from 'react-native-paper';
+import { Dimensions, Image, StyleSheet, View, Linking } from 'react-native';
+import { Avatar, Card, FAB, Text } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
@@ -182,166 +184,36 @@ export default function HomeScreen() {
       />
 
       {/* Modal Kontak Darurat */}
-      <Modal
+      <DaruratModal
         visible={showDaruratModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowDaruratModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Kontak Darurat</Text>
-            
-            <View style={styles.kontakContainer}>
-              {kontakDarurat.map((kontak) => (
-                <View key={kontak.id} style={styles.kontakItem}>
-                  <View style={styles.kontakInfo}>
-                    <Text style={styles.kontakNama}>{kontak.nama}</Text>
-                    <Text style={styles.kontakTelepon}>No. Telepon</Text>
-                  </View>
-                  <TouchableOpacity 
-                    style={styles.callButton}
-                    onPress={() => handleCallDarurat(kontak.telepon)}
-                  >
-                    <Ionicons name="call" size={24} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-
-            <Button 
-              mode="contained" 
-              style={styles.tutupButton}
-              labelStyle={styles.tutupButtonLabel}
-              onPress={() => setShowDaruratModal(false)}
-            >
-              Tutup
-            </Button>
-
-            <View style={styles.footerText}>
-              <Text style={styles.footerLabel}>tekan untuk lebih</Text>
-              <Text style={styles.footerLabel}>Voice Chat</Text>
-            </View>
-
-            <View style={styles.voiceButtonContainer}>
-              <View style={styles.voiceCircle} />
-              <View style={styles.voiceLine} />
-            </View>
-          </View>
-        </View>
-      </Modal>
+        kontakList={kontakDarurat}
+        onCall={handleCallDarurat}
+        onClose={() => setShowDaruratModal(false)}
+      />
 
       {/* PIN Modal */}
-      <Modal
+      <PinModal
         visible={showPinModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowPinModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.pinModalContent}>
-            <Text style={styles.pinTitle}>Pengaturan</Text>
-            
-            <View style={styles.pinInputContainer}>
-              <Text style={styles.pinLabel}>Masukkan Pin</Text>
-              <TextInput
-                style={styles.pinInput}
-                value={pin}
-                onChangeText={setPin}
-                keyboardType="numeric"
-                maxLength={6}
-                secureTextEntry
-                placeholder="••••••"
-                placeholderTextColor="#999"
-              />
-            </View>
-
-            <TouchableOpacity 
-              style={styles.pinButton}
-              onPress={handlePinSubmit}
-            >
-              <Text style={styles.pinButtonText}>Masuk</Text>
-            </TouchableOpacity>
-
-            <View style={styles.pinFooter}>
-              <Text style={styles.pinFooterText}>Ketuk untuk lihat</Text>
-              <Text style={styles.pinFooterLink}>Syarat & Ketentuan</Text>
-              <View style={styles.fingerprint}>
-                <Ionicons name="finger-print" size={40} color="#FDB44B" />
-              </View>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        pin={pin}
+        onPinChange={setPin}
+        onSubmit={handlePinSubmit}
+        onClose={() => setShowPinModal(false)}
+      />
 
       {/* Pengaturan Modal */}
-      <Modal
+      <PengaturanModal
         visible={showPengaturanModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowPengaturanModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.settingsModalContent}>
-            <Text style={styles.settingsModalTitle}>Pengaturan</Text>
-            
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Hubungkan Perangkat</Text>
-              <TextInput
-                style={styles.formInput}
-                value={deviceCode}
-                onChangeText={setDeviceCode}
-                placeholder="No. Telepon"
-                placeholderTextColor="#999"
-                keyboardType="numeric"
-              />
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Isi Saldo</Text>
-              <View style={styles.saldoDisplayContainer}>
-                <Text style={styles.saldoDisplayLabel}>Saldo saat ini</Text>
-                <Text style={styles.saldoDisplayAmount}>Rp. 250.000</Text>
-              </View>
-              <View style={styles.saldoInputRow}>
-                <TextInput
-                  style={styles.saldoInputSmall}
-                  value={saldoAmount}
-                  onChangeText={setSaldoAmount}
-                  placeholder="Nominal"
-                  placeholderTextColor="#999"
-                  keyboardType="numeric"
-                />
-                <TouchableOpacity style={styles.isiButton}>
-                  <Text style={styles.isiButtonText}>Isi</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Atur Nomor Darurat</Text>
-            </View>
-
-            <TouchableOpacity 
-              style={styles.tutupButton2}
-              onPress={() => {
-                setShowPengaturanModal(false);
-                setPin('');
-              }}
-            >
-              <Text style={styles.tutupButtonText}>Tutup</Text>
-            </TouchableOpacity>
-
-            <View style={styles.pinFooter}>
-              <Text style={styles.pinFooterText}>Ketuk untuk lihat</Text>
-              <Text style={styles.pinFooterLink}>Syarat & Ketentuan</Text>
-              <View style={styles.fingerprint}>
-                <Ionicons name="finger-print" size={40} color="#FDB44B" />
-              </View>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        deviceCode={deviceCode}
+        saldoAmount={saldoAmount}
+        nomorDarurat={nomorDarurat}
+        onDeviceCodeChange={setDeviceCode}
+        onSaldoAmountChange={setSaldoAmount}
+        onNomorDaruratChange={setNomorDarurat}
+        onClose={() => {
+          setShowPengaturanModal(false);
+          setPin('');
+        }}
+      />
     </View>
   );
 }
@@ -437,250 +309,5 @@ const styles = StyleSheet.create({
   },
   voiceButton: {
     backgroundColor: '#FDB44B',
-  },
-  // Modal Darurat Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContainer: {
-    backgroundColor: '#000',
-    borderRadius: 30,
-    padding: 20,
-    width: '90%',
-    maxWidth: 400,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#fff',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  kontakContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 16,
-  },
-  kontakItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  kontakInfo: {
-    flex: 1,
-  },
-  kontakNama: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  kontakTelepon: {
-    fontSize: 12,
-    color: '#666',
-  },
-  callButton: {
-    backgroundColor: '#FF6B4A',
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 2,
-  },
-  tutupButton: {
-    backgroundColor: '#FDB44B',
-    borderRadius: 25,
-    paddingVertical: 8,
-  },
-  tutupButtonLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-  },
-  footerText: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  footerLabel: {
-    fontSize: 12,
-    color: '#999',
-    textAlign: 'center',
-  },
-  voiceButtonContainer: {
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  voiceCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#8B7355',
-  },
-  voiceLine: {
-    width: 40,
-    height: 4,
-    backgroundColor: '#666',
-    marginTop: 8,
-    borderRadius: 2,
-  },
-  
-  // PIN Modal Styles
-  pinModalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 30,
-    width: width * 0.85,
-    maxWidth: 400,
-  },
-  pinTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  pinInputContainer: {
-    marginBottom: 20,
-  },
-  pinLabel: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  pinInput: {
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#FDB44B',
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 16,
-    color: '#333',
-  },
-  pinButton: {
-    backgroundColor: '#FDB44B',
-    borderRadius: 12,
-    paddingVertical: 15,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  pinButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  pinFooter: {
-    marginTop: 30,
-    alignItems: 'center',
-  },
-  pinFooterText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  pinFooterLink: {
-    fontSize: 12,
-    color: '#4A90E2',
-    textDecorationLine: 'underline',
-    marginTop: 2,
-  },
-  fingerprint: {
-    marginTop: 20,
-  },
-
-  // Settings Modal Styles
-  settingsModalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 25,
-    width: width * 0.9,
-    maxWidth: 450,
-  },
-  settingsModalTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 25,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  formLabel: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 8,
-    fontWeight: '600',
-  },
-  formInput: {
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#FDB44B',
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 15,
-    color: '#333',
-  },
-  saldoDisplayContainer: {
-    backgroundColor: '#FFF9E6',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 12,
-  },
-  saldoDisplayLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  saldoDisplayAmount: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#333',
-  },
-  saldoInputRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  saldoInputSmall: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 15,
-    color: '#333',
-  },
-  isiButton: {
-    backgroundColor: '#FDB44B',
-    borderRadius: 12,
-    paddingHorizontal: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  isiButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  tutupButton2: {
-    backgroundColor: '#FDB44B',
-    borderRadius: 12,
-    paddingVertical: 15,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  tutupButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
   },
 });
