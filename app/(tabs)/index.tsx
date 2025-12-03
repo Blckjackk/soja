@@ -20,11 +20,18 @@ export default function HomeScreen() {
 
   const handleLocationSubmit = (pickup: string, destination: string) => {
     setModalVisible(false);
-    // Navigate ke halaman jemput-maps dengan parameter
-    router.push({
-      pathname: '/jemput-maps',
-      params: { pickup, destination }
-    });
+    // Navigate berdasarkan jenis layanan
+    if (modalTitle === 'Jemput') {
+      router.push({
+        pathname: '/jemput-maps',
+        params: { pickup, destination }
+      });
+    } else if (modalTitle === 'Antar') {
+      router.push({
+        pathname: '/antar-maps',
+        params: { pickup, destination }
+      });
+    }
   };
 
   return (

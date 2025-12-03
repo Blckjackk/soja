@@ -1,8 +1,8 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Dimensions } from 'react-native';
-import { Surface, Text, Card, Avatar, IconButton, Button, Chip } from 'react-native-paper';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Dimensions, StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { Avatar, Button, Card, IconButton, Surface, Text } from 'react-native-paper';
 
 const { width, height } = Dimensions.get('window');
 
