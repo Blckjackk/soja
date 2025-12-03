@@ -1,9 +1,9 @@
 import LocationModal from '@/components/LocationModal';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, Image, StyleSheet, View, Modal, Linking, TouchableOpacity, TextInput } from 'react-native';
-import { Avatar, Card, FAB, Text, Button } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
+import { Dimensions, Image, Linking, Modal, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Avatar, Button, Card, FAB, Text } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
