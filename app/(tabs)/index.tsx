@@ -1,8 +1,8 @@
-import { StyleSheet, View, Image, Dimensions } from 'react-native';
-import { useState } from 'react';
-import { useRouter } from 'expo-router';
-import { Surface, Text, Card, Avatar, FAB } from 'react-native-paper';
 import LocationModal from '@/components/LocationModal';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Dimensions, Image, StyleSheet, View } from 'react-native';
+import { Avatar, Card, FAB, Text } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
@@ -20,9 +20,9 @@ export default function HomeScreen() {
 
   const handleLocationSubmit = (pickup: string, destination: string) => {
     setModalVisible(false);
-    // Navigate ke halaman tracking dengan parameter
+    // Navigate ke halaman jemput-maps dengan parameter
     router.push({
-      pathname: '/tracking',
+      pathname: '/jemput-maps',
       params: { pickup, destination }
     });
   };

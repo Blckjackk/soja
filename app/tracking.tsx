@@ -1,13 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Image, Dimensions } from 'react-native';
 import { Surface, Text, Card, Avatar, IconButton, Button, Chip } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 const { width, height } = Dimensions.get('window');
 
 export default function TrackingScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+
+  // State untuk region maps (koordinat Bandung - bisa diganti sesuai kebutuhan)
+  const [region, setRegion] = useState({
+    latitude: -6.9175,
+    longitude: 107.6191,
+    latitudeDelta: 0.0122,
+    longitudeDelta: 0.0121,
+  });
+
+  // Koordinat lokasi awal dan tujuan (bisa diganti)
+  const lokasiAwal = {
+    latitude: -6.9175,
+    longitude: 107.6191,
+  };
+
+  const lokasiTujuan = {
+    latitude: -6.9250,
+    longitude: 107.6300,
+  };
 
   return (
     <View style={styles.container}>
@@ -25,16 +45,30 @@ export default function TrackingScreen() {
         </Button>
       </View>
 
-      {/* Map Area (Placeholder) */}
+      {/* Google Maps */}
       <Surface style={styles.mapContainer} elevation={0}>
-        <View style={styles.mapPlaceholder}>
-          <Text style={styles.mapText}>🗺️</Text>
-          <Text variant="bodyLarge" style={styles.mapSubtext}>Map View</Text>
-          {/* Pin merah di tengah */}
-          <View style={styles.centerPin}>
-            <View style={styles.pinDot} />
-          </View>
-        </View>
+        <MapView
+          provider={PROVIDER_GOOGLE}
+          style={styles.map}
+          region={region}
+          onRegionChangeComplete={setRegion}
+        >
+          {/* Marker Lokasi Awal (merah) */}
+          <Marker
+            coordinate={lokasiAwal}
+            title="Lokasi Awal"
+            description={params.pickup as string || "Jl. Campaka No. 6, Lomba 5, Bandung"}
+            pinColor="#FF6B4A"
+          />
+
+          {/* Marker Lokasi Tujuan (hijau) */}
+          <Marker
+            coordinate={lokasiTujuan}
+            title="Lokasi Tujuan"
+            description={params.destination as string || "Jl. Malabar No. 7, Lomba 5, Bandung"}
+            pinColor="#4ECDC4"
+          />
+        </MapView>
       </Surface>
 
       {/* Bottom Info Panel */}
@@ -145,17 +179,14 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     backgroundColor: 'transparent',
+    margin: 10,
+    marginTop: 100,
+    borderRadius: 30,
+    overflow: 'hidden',
   },
-  mapPlaceholder: {
-    flex: 1,
-    backgroundColor: '#e0e0e0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  mapText: {
-    fontSize: 64,
-  },
-  mapSubtext: {
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },pSubtext: {
     color: '#666',
     marginTop: 8,
   },
