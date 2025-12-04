@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useRef } from 'react';
 import {
     Animated,
@@ -8,7 +9,6 @@ import {
     View,
 } from 'react-native';
 import { Avatar, Text } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
 
 const { height } = Dimensions.get('window');
 

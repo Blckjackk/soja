@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useRef } from 'react';
 import {
     Animated,
     Dimensions,
@@ -7,8 +8,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { Avatar, Card, Text } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
+import { Avatar, Text } from 'react-native-paper';
 
 const { height } = Dimensions.get('window');
 

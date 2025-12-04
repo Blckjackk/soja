@@ -1,14 +1,13 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
-  Dimensions,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  ScrollView,
+    Dimensions,
+    Modal,
+    StyleSheet,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
