@@ -8,7 +8,6 @@ const { width, height } = Dimensions.get('window');
 
 // MapTiler API Key
 const MAPTILER_API_KEY = 'SaFxGRdQzxbsujzwd61b';
-MapLibreGL.setAccessToken(null);
 
 export default function TrackingScreen() {
   const router = useRouter();
@@ -26,8 +25,8 @@ export default function TrackingScreen() {
 
   const fetchRoute = async () => {
     try {
-      // Format: /directions/driving/{lon},{lat};{lon},{lat}.json
-      const url = `https://api.maptiler.com/directions/driving/${lokasiAwal[0]},${lokasiAwal[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      // Format: /routing/driving/{lon},{lat};{lon},{lat}
+      const url = `https://api.maptiler.com/routing/driving/${lokasiAwal[0]},${lokasiAwal[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}?key=${MAPTILER_API_KEY}`;
       
       console.log('🗺️ Fetching tracking route...');
       const response = await fetch(url);

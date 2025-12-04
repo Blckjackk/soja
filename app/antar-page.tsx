@@ -8,9 +8,6 @@ import { Text } from 'react-native-paper';
 // MapTiler API Key
 const MAPTILER_API_KEY = 'SaFxGRdQzxbsujzwd61b';
 
-// Initialize MapLibre
-MapLibreGL.setAccessToken(null);
-
 export default function AntarMapsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -36,8 +33,8 @@ export default function AntarMapsScreen() {
 
   const fetchRoute = async () => {
     try {
-      // Format: /directions/driving/{lon},{lat};{lon},{lat}.json
-      const url = `https://api.maptiler.com/directions/driving/${lokasiTravel[0]},${lokasiTravel[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      // Format: /routing/driving/{lon},{lat};{lon},{lat}
+      const url = `https://api.maptiler.com/routing/driving/${lokasiTravel[0]},${lokasiTravel[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}?key=${MAPTILER_API_KEY}`;
       
       console.log('🗺️ Fetching Bandung-Jakarta route...');
       const response = await fetch(url);

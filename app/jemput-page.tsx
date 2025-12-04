@@ -8,9 +8,6 @@ import { Text } from 'react-native-paper';
 // MapTiler API Key
 const MAPTILER_API_KEY = 'SaFxGRdQzxbsujzwd61b';
 
-// Initialize MapLibre
-MapLibreGL.setAccessToken(null);
-
 export default function JemputMapsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -35,8 +32,8 @@ export default function JemputMapsScreen() {
 
   const fetchRoute = async () => {
     try {
-      // Format: /directions/{profile}/{coordinates}.json
-      const url = `https://api.maptiler.com/directions/driving/${lokasiAwal[0]},${lokasiAwal[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      // Format: /routing/driving/{lon},{lat};{lon},{lat}
+      const url = `https://api.maptiler.com/routing/driving/${lokasiAwal[0]},${lokasiAwal[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}?key=${MAPTILER_API_KEY}`;
       
       console.log('🗺️ Fetching route from MapTiler...');
       const response = await fetch(url);
