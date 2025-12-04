@@ -1,22 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useRef } from 'react';
 import {
-    Animated,
-    Dimensions,
-    PanResponder,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Animated,
+  Dimensions,
+  PanResponder,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Avatar, Text } from 'react-native-paper';
 
 const { height } = Dimensions.get('window');
 
-// Snap points disesuaikan agar minimal lebih tinggi dan maksimal pas dengan konten
+// Snap points seperti Gojek - minimal hanya status card, mid untuk info lengkap, max untuk full detail
 const SNAP_POINTS = {
-  MAX: 480, // Fixed height untuk konten yang cukup
-  MID: 420, // Default posisi
-  MIN: 180, // Minimal masih terlihat driver info
+  MAX: height * 0.7, // Hampir full screen
+  MID: 320, // Default - menampilkan semua info penting
+  MIN: 120, // Minimal - hanya status card terlihat
 };
 
 interface JemputBottomSheetProps {
@@ -40,8 +40,9 @@ export default function JemputBottomSheet({
   onChatPress,
   onPhonePress,
 }: JemputBottomSheetProps) {
-  const translateY = useMemo(() => new Animated.Value(height - SNAP_POINTS.MID), []);
+  const translateY = useMemo(() => new Animated.Value(height - SNAP_POINTS.MIN), []);
   const lastGestureDy = useRef(0);
+  const currentSnapPoint = useRef(SNAP_POINTS.MIN);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -65,33 +66,50 @@ export default function JemputBottomSheet({
       },
       onPanResponderRelease: (_, gestureState) => {
         translateY.flattenOffset();
-        lastGestureDy.current = gestureState.dy;
+        
+        // Hitung posisi akhir
+        const velocity = gestureState.vy;
+        const currentPosition = height - currentSnapPoint.current + gestureState.dy;
+        
+        let snapTo = SNAP_POINTS.MIN;
 
-        // Tentukan snap point terdekat
-        const currentY = lastGestureDy.current;
-        let snapTo = SNAP_POINTS.MID;
-
-        if (gestureState.dy < 0) {
-          // Drag ke atas
-          if (currentY < -(SNAP_POINTS.MAX - SNAP_POINTS.MID) / 2) {
-            snapTo = SNAP_POINTS.MAX;
-          } else {
+        // Logic untuk snap berdasarkan velocity dan posisi
+        if (velocity < -0.5) {
+          // Swipe cepat ke atas
+          if (currentSnapPoint.current === SNAP_POINTS.MIN) {
             snapTo = SNAP_POINTS.MID;
+          } else {
+            snapTo = SNAP_POINTS.MAX;
+          }
+        } else if (velocity > 0.5) {
+          // Swipe cepat ke bawah
+          if (currentSnapPoint.current === SNAP_POINTS.MAX) {
+            snapTo = SNAP_POINTS.MID;
+          } else {
+            snapTo = SNAP_POINTS.MIN;
           }
         } else {
-          // Drag ke bawah
-          if (currentY > (SNAP_POINTS.MID - SNAP_POINTS.MIN) / 2) {
+          // Snap ke posisi terdekat berdasarkan posisi saat ini
+          const distanceToMin = Math.abs(currentPosition - (height - SNAP_POINTS.MIN));
+          const distanceToMid = Math.abs(currentPosition - (height - SNAP_POINTS.MID));
+          const distanceToMax = Math.abs(currentPosition - (height - SNAP_POINTS.MAX));
+
+          if (distanceToMin < distanceToMid && distanceToMin < distanceToMax) {
             snapTo = SNAP_POINTS.MIN;
-          } else {
+          } else if (distanceToMid < distanceToMax) {
             snapTo = SNAP_POINTS.MID;
+          } else {
+            snapTo = SNAP_POINTS.MAX;
           }
         }
+
+        currentSnapPoint.current = snapTo;
 
         Animated.spring(translateY, {
           toValue: height - snapTo,
           useNativeDriver: true,
-          friction: 8,
-          tension: 40,
+          friction: 10,
+          tension: 50,
         }).start();
       },
     })
@@ -201,7 +219,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingHorizontal: 16,
     paddingBottom: 30,
-    height: SNAP_POINTS.MAX + 100,
+    height: height, // Full height untuk support semua snap points
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
@@ -215,14 +233,14 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     alignSelf: 'center',
     marginTop: 8,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   statusCard: {
     backgroundColor: '#FDB44B',
     borderRadius: 20,
-    marginBottom: 10,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    marginBottom: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
   },
   statusContent: {
     flexDirection: 'row',

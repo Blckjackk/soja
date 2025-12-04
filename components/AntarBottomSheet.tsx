@@ -12,11 +12,11 @@ import { Avatar, Text } from 'react-native-paper';
 
 const { height } = Dimensions.get('window');
 
-// Snap points untuk antar page - lebih tinggi karena ada seat selection
+// Snap points untuk antar page - minimal hanya travel info, mid untuk detail, max untuk full
 const SNAP_POINTS = {
-  MAX: 550,
-  MID: 480,
-  MIN: 200,
+  MAX: height * 0.7,
+  MID: 400,
+  MIN: 150,
 };
 
 interface AntarBottomSheetProps {
@@ -40,8 +40,9 @@ export default function AntarBottomSheet({
   onSeatPress,
   onConfirm,
 }: AntarBottomSheetProps) {
-  const translateY = useMemo(() => new Animated.Value(height - SNAP_POINTS.MID), []);
+  const translateY = useMemo(() => new Animated.Value(height - SNAP_POINTS.MIN), []);
   const lastGestureDy = useRef(0);
+  const currentSnapPoint = useRef(SNAP_POINTS.MIN);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -63,30 +64,45 @@ export default function AntarBottomSheet({
       },
       onPanResponderRelease: (_, gestureState) => {
         translateY.flattenOffset();
-        lastGestureDy.current = gestureState.dy;
+        
+        const velocity = gestureState.vy;
+        const currentPosition = height - currentSnapPoint.current + gestureState.dy;
+        
+        let snapTo = SNAP_POINTS.MIN;
 
-        const currentY = lastGestureDy.current;
-        let snapTo = SNAP_POINTS.MID;
-
-        if (gestureState.dy < 0) {
-          if (currentY < -(SNAP_POINTS.MAX - SNAP_POINTS.MID) / 2) {
-            snapTo = SNAP_POINTS.MAX;
-          } else {
+        if (velocity < -0.5) {
+          if (currentSnapPoint.current === SNAP_POINTS.MIN) {
             snapTo = SNAP_POINTS.MID;
+          } else {
+            snapTo = SNAP_POINTS.MAX;
+          }
+        } else if (velocity > 0.5) {
+          if (currentSnapPoint.current === SNAP_POINTS.MAX) {
+            snapTo = SNAP_POINTS.MID;
+          } else {
+            snapTo = SNAP_POINTS.MIN;
           }
         } else {
-          if (currentY > (SNAP_POINTS.MID - SNAP_POINTS.MIN) / 2) {
+          const distanceToMin = Math.abs(currentPosition - (height - SNAP_POINTS.MIN));
+          const distanceToMid = Math.abs(currentPosition - (height - SNAP_POINTS.MID));
+          const distanceToMax = Math.abs(currentPosition - (height - SNAP_POINTS.MAX));
+
+          if (distanceToMin < distanceToMid && distanceToMin < distanceToMax) {
             snapTo = SNAP_POINTS.MIN;
-          } else {
+          } else if (distanceToMid < distanceToMax) {
             snapTo = SNAP_POINTS.MID;
+          } else {
+            snapTo = SNAP_POINTS.MAX;
           }
         }
+
+        currentSnapPoint.current = snapTo;
 
         Animated.spring(translateY, {
           toValue: height - snapTo,
           useNativeDriver: true,
-          friction: 8,
-          tension: 40,
+          friction: 10,
+          tension: 50,
         }).start();
       },
     })
@@ -198,7 +214,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingHorizontal: 16,
     paddingBottom: 30,
-    height: SNAP_POINTS.MAX + 100,
+    height: height,
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
@@ -212,14 +228,14 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     alignSelf: 'center',
     marginTop: 8,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   travelInfoCard: {
     backgroundColor: '#FDB44B',
     borderRadius: 20,
-    marginBottom: 10,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    marginBottom: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
   },
   travelHeader: {
     flexDirection: 'row',
@@ -241,7 +257,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   timeValue: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '700',
     color: '#1A1D29',
     marginBottom: 2,
@@ -253,14 +269,14 @@ const styles = StyleSheet.create({
   routeCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    marginBottom: 10,
-    paddingVertical: 12,
+    marginBottom: 12,
+    paddingVertical: 8,
     paddingHorizontal: 16,
   },
   routeItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
   },
   routeDivider: {
     height: 1,
@@ -307,9 +323,9 @@ const styles = StyleSheet.create({
   seatCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    paddingVertical: 16,
+    paddingVertical: 14,
     paddingHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   seatHeader: {
     flexDirection: 'row',
@@ -356,9 +372,13 @@ const styles = StyleSheet.create({
   confirmButton: {
     backgroundColor: '#FDB44B',
     borderRadius: 16,
-    paddingVertical: 16,
+    paddingVertical: 14,
     alignItems: 'center',
-    elevation: 3,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3.84,
   },
   confirmButtonDisabled: {
     backgroundColor: '#9E9E9E',
