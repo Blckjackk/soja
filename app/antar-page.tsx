@@ -5,8 +5,10 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
 
-// MapTiler API Key
+// MapTiler API Key untuk map tiles
 const MAPTILER_API_KEY = 'SaFxGRdQzxbsujzwd61b';
+// OpenRouteService API untuk routing (gratis 2000 requests/hari)
+const OPENROUTE_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjBmNDc4MTYyYWVjYzQwNzdhZTEzZjIwMzJkY2ZmMWZmIiwiaCI6Im11cm11cjY0In0=';
 
 export default function AntarMapsScreen() {
   const router = useRouter();
@@ -33,25 +35,29 @@ export default function AntarMapsScreen() {
 
   const fetchRoute = async () => {
     try {
-      // Format: /routing/driving/{lon},{lat};{lon},{lat}
-      const url = `https://api.maptiler.com/routing/driving/${lokasiTravel[0]},${lokasiTravel[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}?key=${MAPTILER_API_KEY}`;
+      // OpenRouteService API (gratis, no credit card needed)
+      const url = `https://api.openrouteservice.org/v2/directions/driving-car?start=${lokasiTravel[0]},${lokasiTravel[1]}&end=${lokasiTujuan[0]},${lokasiTujuan[1]}`;
       
       console.log('🗺️ Fetching Bandung-Jakarta route...');
-      const response = await fetch(url);
-      const text = await response.text();
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': OPENROUTE_API_KEY,
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json();
       
       if (!response.ok) {
-        console.error('❌ MapTiler API Error:', response.status, text);
+        console.error('❌ Routing API Error:', response.status, data);
         throw new Error(`HTTP ${response.status}`);
       }
       
-      const data = JSON.parse(text);
-      console.log('✅ Route response:', data.routes ? 'SUCCESS' : 'NO ROUTES');
+      console.log('✅ Route response:', data.features ? 'SUCCESS' : 'NO ROUTES');
 
-      if (data.routes && data.routes[0] && data.routes[0].geometry) {
-        const coordinates = data.routes[0].geometry.coordinates;
-        const distance = data.routes[0].distance;
-        const duration = data.routes[0].duration;
+      if (data.features && data.features[0] && data.features[0].geometry) {
+        const coordinates = data.features[0].geometry.coordinates;
+        const distance = data.features[0].properties.summary.distance;
+        const duration = data.features[0].properties.summary.duration;
         console.log(`📍 Route: ${coordinates.length} points, ${(distance/1000).toFixed(1)}km, ${(duration/60).toFixed(0)}min`);
         setRouteCoordinates(coordinates);
       } else {
