@@ -49,9 +49,6 @@ export default function PinModal({ visible, pin, onPinChange, onSubmit, onClose 
           <View style={styles.pinFooter}>
             <Text style={styles.pinFooterText}>Ketuk untuk lihat</Text>
             <Text style={styles.pinFooterLink}>Syarat & Ketentuan</Text>
-            <View style={styles.fingerprint}>
-              <Ionicons name="finger-print" size={40} color="#FDB44B" />
-            </View>
           </View>
         </View>
       </View>

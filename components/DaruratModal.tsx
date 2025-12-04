@@ -54,16 +54,6 @@ export default function DaruratModal({ visible, kontakList, onCall, onClose }: D
           >
             Tutup
           </Button>
-
-          <View style={styles.footerText}>
-            <Text style={styles.footerLabel}>tekan untuk lebih</Text>
-            <Text style={styles.footerLabel}>Voice Chat</Text>
-          </View>
-
-          <View style={styles.voiceButtonContainer}>
-            <View style={styles.voiceCircle} />
-            <View style={styles.voiceLine} />
-          </View>
         </View>
       </View>
     </Modal>

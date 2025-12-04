@@ -73,6 +73,8 @@ export default function HomeScreen() {
         <Image 
           source={require('@/assets/images/Logo Soja.png')} 
           style={styles.logo}
+          width={120}
+          height={100}
           resizeMode="contain"
         />
       </View>
