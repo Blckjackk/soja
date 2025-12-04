@@ -1,34 +1,45 @@
 import AntarBottomSheet from '@/components/AntarBottomSheet';
+import MapLibreGL from '@maplibre/maplibre-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
 
-const { width } = Dimensions.get('window');
+// MapTiler API Key
+const MAPTILER_API_KEY = 'SaFxGRdQzxbsujzwd61b';
+
+// Initialize MapLibre
+MapLibreGL.setAccessToken(null);
 
 export default function AntarMapsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null);
+  const [routeCoordinates, setRouteCoordinates] = useState<number[][]>([]);
 
-  // State untuk region maps (koordinat Bandung - bisa diganti sesuai kebutuhan)
-  const [region, setRegion] = useState({
-    latitude: -6.9175,
-    longitude: 107.6191,
-    latitudeDelta: 0.0122,
-    longitudeDelta: 0.0121,
-  });
+  // Koordinat Bandung ke Jakarta
+  const lokasiTravel = [107.5794, -6.9389]; // Terminal Leuwipanjang
+  const lokasiTujuan = [106.8302, -6.1754]; // Stasiun Gambir
 
-  // Koordinat lokasi travel saat ini (dari mana naik) dan tujuan
-  const lokasiTravel = {
-    latitude: -6.9175,
-    longitude: 107.6191,
-  };
+  // Fetch route dari MapTiler
+  useEffect(() => {
+    fetchRoute();
+  }, []);
 
-  const lokasiTujuan = {
-    latitude: -6.9250,
-    longitude: 107.6300,
+  const fetchRoute = async () => {
+    try {
+      const url = `https://api.maptiler.com/routing/car/${lokasiTravel[0]},${lokasiTravel[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.routes && data.routes[0]) {
+        const coordinates = data.routes[0].geometry.coordinates;
+        setRouteCoordinates(coordinates);
+      }
+    } catch (error) {
+      console.error('Error fetching route:', error);
+      setRouteCoordinates([lokasiTravel, lokasiTujuan]);
+    }
   };
 
   // Data kursi (0 = kosong, 1 = terisi)
@@ -50,29 +61,59 @@ export default function AntarMapsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Google Maps Full Screen sebagai background */}
-      <MapView
-        provider={PROVIDER_GOOGLE}
+      {/* MapLibre Map dengan MapTiler */}
+      <MapLibreGL.MapView
         style={styles.map}
-        region={region}
-        onRegionChangeComplete={setRegion}
+        styleURL={`https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`}
       >
-        {/* Marker Lokasi Travel (biru) */}
-        <Marker
-          coordinate={lokasiTravel}
-          title="Lokasi Travel"
-          description="Posisi travel saat ini"
-          pinColor="#4A90E2"
+        <MapLibreGL.Camera
+          zoomLevel={8}
+          centerCoordinate={[
+            (lokasiTravel[0] + lokasiTujuan[0]) / 2,
+            (lokasiTravel[1] + lokasiTujuan[1]) / 2,
+          ]}
         />
 
-        {/* Marker Lokasi Tujuan (hijau) */}
-        <Marker
+        {/* Route Line (Biru) */}
+        {routeCoordinates.length > 0 && (
+          <MapLibreGL.ShapeSource
+            id="routeSource"
+            shape={{
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: routeCoordinates,
+              },
+            }}
+          >
+            <MapLibreGL.LineLayer
+              id="routeLine"
+              style={{
+                lineColor: '#2196F3',
+                lineWidth: 4,
+                lineCap: 'round',
+                lineJoin: 'round',
+              }}
+            />
+          </MapLibreGL.ShapeSource>
+        )}
+
+        {/* Marker Keberangkatan (Hijau) */}
+        <MapLibreGL.PointAnnotation
+          id="origin"
+          coordinate={lokasiTravel}
+        >
+          <View style={[styles.marker, { backgroundColor: '#4CAF50' }]} />
+        </MapLibreGL.PointAnnotation>
+
+        {/* Marker Tujuan (Merah) */}
+        <MapLibreGL.PointAnnotation
+          id="destination"
           coordinate={lokasiTujuan}
-          title="Tujuan"
-          description={params.destination as string || "Tujuan perjalanan"}
-          pinColor="#4ECDC4"
-        />
-      </MapView>
+        >
+          <View style={[styles.marker, { backgroundColor: '#F44336' }]} />
+        </MapLibreGL.PointAnnotation>
+      </MapLibreGL.MapView>
 
       {/* Header dengan tombol kembali - Overlay di atas maps */}
       <View style={styles.header}>
@@ -106,7 +147,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   map: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
   },
   header: {
     position: 'absolute',
@@ -129,5 +170,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
+  },
+  marker: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 3,
+    borderColor: '#fff',
   },
 });

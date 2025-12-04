@@ -1,32 +1,43 @@
+import MapLibreGL from '@maplibre/maplibre-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Avatar, Button, Card, IconButton, Surface, Text } from 'react-native-paper';
 
 const { width, height } = Dimensions.get('window');
 
+// MapTiler API Key
+const MAPTILER_API_KEY = 'SaFxGRdQzxbsujzwd61b';
+MapLibreGL.setAccessToken(null);
+
 export default function TrackingScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-
-  // State untuk region maps (koordinat Bandung - bisa diganti sesuai kebutuhan)
-  const [region, setRegion] = useState({
-    latitude: -6.9175,
-    longitude: 107.6191,
-    latitudeDelta: 0.0122,
-    longitudeDelta: 0.0121,
-  });
+  const [routeCoordinates, setRouteCoordinates] = useState<number[][]>([]);
 
   // Koordinat lokasi awal dan tujuan (bisa diganti)
-  const lokasiAwal = {
-    latitude: -6.9175,
-    longitude: 107.6191,
-  };
+  const lokasiAwal = [107.6191, -6.9175]; // [longitude, latitude]
+  const lokasiTujuan = [107.6300, -6.9250];
 
-  const lokasiTujuan = {
-    latitude: -6.9250,
-    longitude: 107.6300,
+  // Fetch route dari MapTiler
+  useEffect(() => {
+    fetchRoute();
+  }, []);
+
+  const fetchRoute = async () => {
+    try {
+      const url = `https://api.maptiler.com/routing/car/${lokasiAwal[0]},${lokasiAwal[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.routes && data.routes[0]) {
+        const coordinates = data.routes[0].geometry.coordinates;
+        setRouteCoordinates(coordinates);
+      }
+    } catch (error) {
+      console.error('Error fetching route:', error);
+      setRouteCoordinates([lokasiAwal, lokasiTujuan]);
+    }
   };
 
   return (
@@ -45,30 +56,57 @@ export default function TrackingScreen() {
         </Button>
       </View>
 
-      {/* Google Maps */}
+      {/* MapLibre Map */}
       <Surface style={styles.mapContainer} elevation={0}>
-        <MapView
-          provider={PROVIDER_GOOGLE}
+        <MapLibreGL.MapView
           style={styles.map}
-          region={region}
-          onRegionChangeComplete={setRegion}
+          styleURL={`https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`}
         >
-          {/* Marker Lokasi Awal (merah) */}
-          <Marker
-            coordinate={lokasiAwal}
-            title="Lokasi Awal"
-            description={params.pickup as string || "Jl. Campaka No. 6, Lomba 5, Bandung"}
-            pinColor="#FF6B4A"
+          <MapLibreGL.Camera
+            zoomLevel={14}
+            centerCoordinate={lokasiAwal}
           />
 
-          {/* Marker Lokasi Tujuan (hijau) */}
-          <Marker
+          {/* Route Line */}
+          {routeCoordinates.length > 0 && (
+            <MapLibreGL.ShapeSource
+              id="routeSource"
+              shape={{
+                type: 'Feature',
+                geometry: {
+                  type: 'LineString',
+                  coordinates: routeCoordinates,
+                },
+              }}
+            >
+              <MapLibreGL.LineLayer
+                id="routeLine"
+                style={{
+                  lineColor: '#2196F3',
+                  lineWidth: 5,
+                  lineCap: 'round',
+                  lineJoin: 'round',
+                }}
+              />
+            </MapLibreGL.ShapeSource>
+          )}
+
+          {/* Marker Lokasi Awal */}
+          <MapLibreGL.PointAnnotation
+            id="pickup"
+            coordinate={lokasiAwal}
+          >
+            <View style={[styles.marker, { backgroundColor: '#FF6B4A' }]} />
+          </MapLibreGL.PointAnnotation>
+
+          {/* Marker Lokasi Tujuan */}
+          <MapLibreGL.PointAnnotation
+            id="destination"
             coordinate={lokasiTujuan}
-            title="Lokasi Tujuan"
-            description={params.destination as string || "Jl. Malabar No. 7, Lomba 5, Bandung"}
-            pinColor="#4ECDC4"
-          />
-        </MapView>
+          >
+            <View style={[styles.marker, { backgroundColor: '#4ECDC4' }]} />
+          </MapLibreGL.PointAnnotation>
+        </MapLibreGL.MapView>
       </Surface>
 
       {/* Bottom Info Panel */}
@@ -185,8 +223,16 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   map: {
-    ...StyleSheet.absoluteFillObject,
-  },pSubtext: {
+    flex: 1,
+  },
+  marker: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  pSubtext: {
     color: '#666',
     marginTop: 8,
   },

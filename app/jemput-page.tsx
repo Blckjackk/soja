@@ -1,31 +1,44 @@
 import JemputBottomSheet from '@/components/JemputBottomSheet';
+import MapLibreGL from '@maplibre/maplibre-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Text } from 'react-native-paper';
+
+// MapTiler API Key
+const MAPTILER_API_KEY = 'SaFxGRdQzxbsujzwd61b';
+
+// Initialize MapLibre
+MapLibreGL.setAccessToken(null);
 
 export default function JemputMapsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const [routeCoordinates, setRouteCoordinates] = useState<number[][]>([]);
 
-  // State untuk region maps (koordinat Bandung - bisa diganti sesuai kebutuhan)
-  const [region, setRegion] = useState({
-    latitude: -6.9175,
-    longitude: 107.6191,
-    latitudeDelta: 0.0122,
-    longitudeDelta: 0.0121,
-  });
+  // Koordinat Bandung - Dago ke Pasteur  
+  const lokasiAwal = [107.6191, -6.8700]; // [longitude, latitude]
+  const lokasiTujuan = [107.5975, -6.9025];
 
-  // Koordinat lokasi awal dan tujuan (bisa diganti)
-  const lokasiAwal = {
-    latitude: -6.9175,
-    longitude: 107.6191,
-  };
+  // Fetch route dari MapTiler Directions API
+  useEffect(() => {
+    fetchRoute();
+  }, []);
 
-  const lokasiTujuan = {
-    latitude: -6.9250,
-    longitude: 107.6300,
+  const fetchRoute = async () => {
+    try {
+      const url = `https://api.maptiler.com/routing/car/${lokasiAwal[0]},${lokasiAwal[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.routes && data.routes[0]) {
+        const coordinates = data.routes[0].geometry.coordinates;
+        setRouteCoordinates(coordinates);
+      }
+    } catch (error) {
+      console.error('Error fetching route:', error);
+      setRouteCoordinates([lokasiAwal, lokasiTujuan]);
+    }
   };
 
   const handleChatPress = () => {
@@ -40,29 +53,56 @@ export default function JemputMapsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Google Maps Full Screen sebagai background */}
-      <MapView
-        provider={PROVIDER_GOOGLE}
+      {/* MapLibre Map dengan MapTiler */}
+      <MapLibreGL.MapView
         style={styles.map}
-        region={region}
-        onRegionChangeComplete={setRegion}
+        styleURL={`https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`}
       >
-        {/* Marker Lokasi Awal (merah) */}
-        <Marker
-          coordinate={lokasiAwal}
-          title="Lokasi Awal"
-          description="Jl. Campaka No. 6, Lomba 5, Bandung"
-          pinColor="#FF6B4A"
+        <MapLibreGL.Camera
+          zoomLevel={14}
+          centerCoordinate={lokasiAwal}
         />
 
-        {/* Marker Lokasi Tujuan (hijau/cyan) */}
-        <Marker
+        {/* Route Line (Biru) */}
+        {routeCoordinates.length > 0 && (
+          <MapLibreGL.ShapeSource
+            id="routeSource"
+            shape={{
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: routeCoordinates,
+              },
+            }}
+          >
+            <MapLibreGL.LineLayer
+              id="routeLine"
+              style={{
+                lineColor: '#2196F3',
+                lineWidth: 5,
+                lineCap: 'round',
+                lineJoin: 'round',
+              }}
+            />
+          </MapLibreGL.ShapeSource>
+        )}
+
+        {/* Marker Lokasi Awal (Hijau) */}
+        <MapLibreGL.PointAnnotation
+          id="pickup"
+          coordinate={lokasiAwal}
+        >
+          <View style={[styles.marker, { backgroundColor: '#4CAF50' }]} />
+        </MapLibreGL.PointAnnotation>
+
+        {/* Marker Lokasi Tujuan (Merah) */}
+        <MapLibreGL.PointAnnotation
+          id="destination"
           coordinate={lokasiTujuan}
-          title="Lokasi Tujuan"
-          description="Jl. Kebon Kol. 7, Lomba 5, Bandung"
-          pinColor="#4ECDC4"
-        />
-      </MapView>
+        >
+          <View style={[styles.marker, { backgroundColor: '#F44336' }]} />
+        </MapLibreGL.PointAnnotation>
+      </MapLibreGL.MapView>
 
       {/* Header dengan tombol kembali - Overlay di atas maps */}
       <View style={styles.header}>
@@ -94,7 +134,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   map: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
   },
   header: {
     position: 'absolute',
@@ -117,5 +157,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
+  },
+  marker: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 3,
+    borderColor: '#fff',
   },
 });
