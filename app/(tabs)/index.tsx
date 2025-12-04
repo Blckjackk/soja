@@ -50,18 +50,28 @@ export default function HomeScreen() {
     }
   };
 
-  const handleLocationSubmit = (pickup: string, destination: string) => {
+  const handleLocationSubmit = (pickupLat: number, pickupLng: number, destLat: number, destLng: number) => {
     setModalVisible(false);
-    // Navigate berdasarkan jenis layanan
+    // Navigate berdasarkan jenis layanan dengan koordinat GPS
     if (modalTitle === 'Jemput') {
       router.push({
         pathname: '/jemput-page',
-        params: { pickup, destination }
+        params: { 
+          pickupLat: pickupLat.toString(), 
+          pickupLng: pickupLng.toString(), 
+          destLat: destLat.toString(), 
+          destLng: destLng.toString() 
+        }
       });
     } else if (modalTitle === 'Antar') {
       router.push({
         pathname: '/antar-page',
-        params: { pickup, destination }
+        params: { 
+          pickupLat: pickupLat.toString(), 
+          pickupLng: pickupLng.toString(), 
+          destLat: destLat.toString(), 
+          destLng: destLng.toString() 
+        }
       });
     }
   };
