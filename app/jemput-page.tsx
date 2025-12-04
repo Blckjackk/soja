@@ -1,11 +1,9 @@
 import JemputBottomSheet from '@/components/JemputBottomSheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Text } from 'react-native-paper';
-
-const { width, height } = Dimensions.get('window');
 
 export default function JemputMapsScreen() {
   const router = useRouter();
@@ -82,8 +80,8 @@ export default function JemputMapsScreen() {
         driverPlate="B 1234 ABC"
         driverRating={4.9}
         estimatedTime="5 menit"
-        pickupAddress="Jl. Cempaka no. 5, Lantai 5, Bandung"
-        destinationAddress="Jl. Melati no. 7, Lantai 5 Bandung"
+        pickupAddress={(params.pickup as string) || "Jl. Cempaka no. 5, Lantai 5, Bandung"}
+        destinationAddress={(params.destination as string) || "Jl. Melati no. 7, Lantai 5 Bandung"}
         onChatPress={handleChatPress}
         onPhonePress={handlePhonePress}
       />

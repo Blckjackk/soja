@@ -1,15 +1,17 @@
+import AntarBottomSheet from '@/components/AntarBottomSheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { Card, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export default function AntarMapsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null);
+  const [showSeatModal, setShowSeatModal] = useState(false);
 
   // State untuk region maps (koordinat Bandung - bisa diganti sesuai kebutuhan)
   const [region, setRegion] = useState({
@@ -30,7 +32,7 @@ export default function AntarMapsScreen() {
     longitude: 107.6300,
   };
 
-  // Data kursi (0 = kosong, 1 = terisi, 2 = dipilih)
+  // Data kursi (0 = kosong, 1 = terisi)
   const seats = [
     [0, 1, 0, 0, 1], // Baris 1
     [0, 0, 1, 0, 0], // Baris 2
@@ -48,6 +50,13 @@ export default function AntarMapsScreen() {
     if (seats[rowIndex][seatIndex] === 1) return '#999'; // Terisi
     if (selectedSeat === seatNumber) return '#FF6B4A'; // Dipilih
     return '#FDB44B'; // Tersedia
+  };
+
+  const handleConfirm = () => {
+    if (selectedSeat) {
+      console.log('Confirmed seat:', selectedSeat);
+      // Implementasi konfirmasi booking
+    }
   };
 
   return (
@@ -86,91 +95,78 @@ export default function AntarMapsScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Bottom Sheet yang bisa di-scroll */}
-      <View style={styles.bottomSheet}>
-        {/* Handle bar untuk indikator drag */}
-        <View style={styles.handleBar} />
-        
-        <ScrollView 
-          style={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-        {/* Info Transportasi Card */}
-        <Card style={styles.transportCard} mode="elevated">
-          <Card.Content style={styles.transportContent}>
-            <View style={styles.transportInfo}>
-              <Text style={styles.transportTitle}>Transporta</Text>
-              <Text style={styles.transportSubtitle}>Rute Dago-Kiaracondong-Baleendah</Text>
-            </View>
-            <View style={styles.distanceInfo}>
-              <Text style={styles.distanceLabel}>Jarak</Text>
-              <Text style={styles.distanceValue}>10 km</Text>
-            </View>
-          </Card.Content>
-        </Card>
+      {/* Bottom Sheet yang bisa di-drag */}
+      <AntarBottomSheet
+        vehiclePlate="B 1234 XYZ"
+        departureTime="14:00"
+        estimatedArrival="16:30"
+        travelOrigin={params.pickup as string || "Terminal Leuwipanjang, Bandung"}
+        destination={params.destination as string || "Stasiun Gambir, Jakarta"}
+        selectedSeat={selectedSeat}
+        onSeatPress={() => setShowSeatModal(true)}
+        onConfirm={handleConfirm}
+      />
 
-        {/* Pilih Kursi Section */}
-        <View style={styles.seatSection}>
-          <View style={styles.seatHeader}>
-            <Text style={styles.seatTitle}>Pilih Kursi</Text>
-            <Text style={styles.seatSubtitle}>(Pilih kursi)</Text>
-          </View>
+      {/* Seat Selection Modal */}
+      <Modal
+        visible={showSeatModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowSeatModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Pilih Kursi</Text>
+            
+            {/* Legend */}
+            <View style={styles.legend}>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendBox, { backgroundColor: '#FDB44B' }]} />
+                <Text style={styles.legendText}>Tersedia</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendBox, { backgroundColor: '#999' }]} />
+                <Text style={styles.legendText}>Terisi</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendBox, { backgroundColor: '#FF6B4A' }]} />
+                <Text style={styles.legendText}>Dipilih</Text>
+              </View>
+            </View>
 
-          {/* Legend */}
-          <View style={styles.legend}>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendBox, { backgroundColor: '#4ECDC4' }]} />
-              <Text style={styles.legendText}>Tersedia</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendBox, { backgroundColor: '#999' }]} />
-              <Text style={styles.legendText}>Terisi</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendBox, { backgroundColor: '#FF6B4A' }]} />
-              <Text style={styles.legendText}>Dipilih</Text>
-            </View>
-          </View>
-
-          {/* Kursi Layout */}
-          <Card style={styles.seatCard} mode="elevated">
-            <Card.Content style={styles.seatContent}>
+            {/* Seat Layout */}
+            <View style={styles.seatContainer}>
               {seats.map((row, rowIndex) => (
                 <View key={rowIndex} style={styles.seatRow}>
-                  {row.map((seat, seatIndex) => (
-                    <TouchableOpacity
-                      key={seatIndex}
-                      style={[
-                        styles.seat,
-                        { backgroundColor: getSeatColor(rowIndex, seatIndex) }
-                      ]}
-                      onPress={() => handleSeatPress(rowIndex, seatIndex)}
-                      disabled={seat === 1}
-                    />
-                  ))}
-                  {/* Kolom kanan untuk navigasi */}
-                  <View style={styles.rightColumn}>
-                    <View style={[styles.navCircle, { backgroundColor: '#FDB44B' }]} />
-                    <View style={[styles.navCircle, { backgroundColor: '#FDB44B' }]} />
-                  </View>
+                  {row.map((seat, seatIndex) => {
+                    const seatNumber = rowIndex * 5 + seatIndex + 1;
+                    return (
+                      <TouchableOpacity
+                        key={seatIndex}
+                        style={[
+                          styles.seat,
+                          { backgroundColor: getSeatColor(rowIndex, seatIndex) }
+                        ]}
+                        onPress={() => handleSeatPress(rowIndex, seatIndex)}
+                        disabled={seat === 1}
+                      >
+                        <Text style={styles.seatNumber}>{seatNumber}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               ))}
-            </Card.Content>
-          </Card>
-        </View>
+            </View>
 
-        {/* Selected Seat Info */}
-        {selectedSeat && (
-          <Card style={styles.selectedCard} mode="elevated">
-            <Card.Content>
-              <Text style={styles.selectedText}>
-                Kursi terpilih: <Text style={styles.selectedNumber}>Nomor {selectedSeat}</Text>
-              </Text>
-            </Card.Content>
-          </Card>
-        )}
-        </ScrollView>
-      </View>
+            <TouchableOpacity 
+              style={styles.closeButton}
+              onPress={() => setShowSeatModal(false)}
+            >
+              <Text style={styles.closeButtonText}>Tutup</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -204,92 +200,31 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
-  bottomSheet: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#1a2332',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    maxHeight: height * 0.75,
-    minHeight: height * 0.35,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  handleBar: {
-    width: 60,
-    height: 5,
-    backgroundColor: '#ffffff40',
-    borderRadius: 3,
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 16,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-  },
-  transportCard: {
-    backgroundColor: '#FDB44B',
-    borderRadius: 20,
-    marginBottom: 16,
-    elevation: 4,
-  },
-  transportContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  transportInfo: {
+  modalOverlay: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
-  transportTitle: {
-    fontSize: 16,
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 25,
+    width: width * 0.9,
+    maxWidth: 450,
+  },
+  modalTitle: {
+    fontSize: 22,
     fontWeight: '700',
     color: '#333',
-    marginBottom: 2,
-  },
-  transportSubtitle: {
-    fontSize: 11,
-    color: '#555',
-  },
-  distanceInfo: {
-    alignItems: 'flex-end',
-  },
-  distanceLabel: {
-    fontSize: 11,
-    color: '#555',
-  },
-  distanceValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-  },
-  seatSection: {
+    textAlign: 'center',
     marginBottom: 20,
-  },
-  seatHeader: {
-    marginBottom: 12,
-  },
-  seatTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 2,
-  },
-  seatSubtitle: {
-    fontSize: 12,
-    color: '#999',
   },
   legend: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   legendItem: {
     flexDirection: 'row',
@@ -303,50 +238,38 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: '#ffffff',
+    color: '#333',
   },
-  seatCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    elevation: 4,
-  },
-  seatContent: {
-    paddingVertical: 16,
+  seatContainer: {
+    marginBottom: 20,
   },
   seatRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-    paddingHorizontal: 8,
+    justifyContent: 'center',
+    marginBottom: 10,
+    gap: 8,
   },
   seat: {
-    width: 40,
-    height: 35,
+    width: 50,
+    height: 50,
     borderRadius: 8,
-    marginHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
   },
-  rightColumn: {
-    flexDirection: 'column',
-    gap: 8,
-    marginLeft: 16,
-  },
-  navCircle: {
-    width: 25,
-    height: 25,
-    borderRadius: 12.5,
-  },
-  selectedCard: {
-    backgroundColor: '#4ECDC4',
-    borderRadius: 20,
-    marginBottom: 20,
-    elevation: 4,
-  },
-  selectedText: {
+  seatNumber: {
     fontSize: 14,
-    color: '#ffffff',
-    fontWeight: '600',
+    fontWeight: '700',
+    color: '#fff',
   },
-  selectedNumber: {
+  closeButton: {
+    backgroundColor: '#FDB44B',
+    borderRadius: 12,
+    paddingVertical: 15,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: '#fff',
     fontSize: 16,
     fontWeight: '700',
   },

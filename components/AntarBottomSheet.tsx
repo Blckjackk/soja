@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import {
     Animated,
     Dimensions,
@@ -40,7 +40,7 @@ export default function AntarBottomSheet({
   onSeatPress,
   onConfirm,
 }: AntarBottomSheetProps) {
-  const translateY = useRef(new Animated.Value(height - SNAP_POINTS.MID)).current;
+  const translateY = useMemo(() => new Animated.Value(height - SNAP_POINTS.MID), []);
   const lastGestureDy = useRef(0);
 
   const panResponder = useRef(
