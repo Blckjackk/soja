@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useRef, useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
     Animated,
     Dimensions,
