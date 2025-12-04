@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
-import { Modal, Portal, Card, TextInput, Button, IconButton, Text, ActivityIndicator, Divider } from 'react-native-paper';
+import React, { useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Button, Card, Divider, IconButton, Modal, Portal, Text, TextInput } from 'react-native-paper';
 
 interface LocationModalProps {
   visible: boolean;
