@@ -1,7 +1,7 @@
 import AntarBottomSheet from '@/components/AntarBottomSheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Text } from 'react-native-paper';
 
