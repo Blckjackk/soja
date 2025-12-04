@@ -11,7 +11,6 @@ export default function AntarMapsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null);
-  const [showSeatModal, setShowSeatModal] = useState(false);
 
   // State untuk region maps (koordinat Bandung - bisa diganti sesuai kebutuhan)
   const [region, setRegion] = useState({
@@ -34,22 +33,12 @@ export default function AntarMapsScreen() {
 
   // Data kursi (0 = kosong, 1 = terisi)
   const seats = [
-    [0, 1, 0, 0, 1], // Baris 1
-    [0, 0, 1, 0, 0], // Baris 2
-    [1, 0, 0, 1, 0], // Baris 3
+    [0, 0, 0, 0, 1], // Top row
+    [0, 0, 0, 0, 0], // Bottom row
   ];
 
-  const handleSeatPress = (rowIndex: number, seatIndex: number) => {
-    if (seats[rowIndex][seatIndex] === 1) return; // Kursi sudah terisi
-    const seatNumber = rowIndex * 5 + seatIndex + 1;
+  const handleSeatSelect = (seatNumber: number) => {
     setSelectedSeat(seatNumber);
-  };
-
-  const getSeatColor = (rowIndex: number, seatIndex: number) => {
-    const seatNumber = rowIndex * 5 + seatIndex + 1;
-    if (seats[rowIndex][seatIndex] === 1) return '#999'; // Terisi
-    if (selectedSeat === seatNumber) return '#FF6B4A'; // Dipilih
-    return '#FDB44B'; // Tersedia
   };
 
   const handleConfirm = () => {
@@ -102,71 +91,12 @@ export default function AntarMapsScreen() {
         estimatedArrival="16:30"
         travelOrigin={params.pickup as string || "Terminal Leuwipanjang, Bandung"}
         destination={params.destination as string || "Stasiun Gambir, Jakarta"}
+        distance="10 km"
         selectedSeat={selectedSeat}
-        onSeatPress={() => setShowSeatModal(true)}
+        seats={seats}
+        onSeatSelect={handleSeatSelect}
         onConfirm={handleConfirm}
       />
-
-      {/* Seat Selection Modal */}
-      <Modal
-        visible={showSeatModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowSeatModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Pilih Kursi</Text>
-            
-            {/* Legend */}
-            <View style={styles.legend}>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendBox, { backgroundColor: '#FDB44B' }]} />
-                <Text style={styles.legendText}>Tersedia</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendBox, { backgroundColor: '#999' }]} />
-                <Text style={styles.legendText}>Terisi</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendBox, { backgroundColor: '#FF6B4A' }]} />
-                <Text style={styles.legendText}>Dipilih</Text>
-              </View>
-            </View>
-
-            {/* Seat Layout */}
-            <View style={styles.seatContainer}>
-              {seats.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.seatRow}>
-                  {row.map((seat, seatIndex) => {
-                    const seatNumber = rowIndex * 5 + seatIndex + 1;
-                    return (
-                      <TouchableOpacity
-                        key={seatIndex}
-                        style={[
-                          styles.seat,
-                          { backgroundColor: getSeatColor(rowIndex, seatIndex) }
-                        ]}
-                        onPress={() => handleSeatPress(rowIndex, seatIndex)}
-                        disabled={seat === 1}
-                      >
-                        <Text style={styles.seatNumber}>{seatNumber}</Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              ))}
-            </View>
-
-            <TouchableOpacity 
-              style={styles.closeButton}
-              onPress={() => setShowSeatModal(false)}
-            >
-              <Text style={styles.closeButtonText}>Tutup</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -199,78 +129,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 25,
-    width: width * 0.9,
-    maxWidth: 450,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  legend: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  legendBox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-  },
-  legendText: {
-    fontSize: 12,
-    color: '#333',
-  },
-  seatContainer: {
-    marginBottom: 20,
-  },
-  seatRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 10,
-    gap: 8,
-  },
-  seat: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 2,
-  },
-  seatNumber: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  closeButton: {
-    backgroundColor: '#FDB44B',
-    borderRadius: 12,
-    paddingVertical: 15,
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
   },
 });
