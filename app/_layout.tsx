@@ -1,7 +1,7 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { PaperProvider, MD3LightTheme } from 'react-native-paper';
+import { MD3LightTheme, PaperProvider } from 'react-native-paper';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -15,8 +15,8 @@ const paperTheme = {
   colors: {
     ...MD3LightTheme.colors,
     primary: '#4A90E2',
-    secondary: '#FDB44B',
-    error: '#FF6B4A',
+    secondary: '#4A90E2',
+    error: '#4A90E2',
     background: '#1a2332',
   },
 };

@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Dimensions, Modal, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
@@ -90,14 +89,14 @@ const styles = StyleSheet.create({
   pinInput: {
     backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: '#FDB44B',
+    borderColor: '#4A90E2',
     borderRadius: 12,
     padding: 15,
     fontSize: 16,
     color: '#333',
   },
   pinButton: {
-    backgroundColor: '#FDB44B',
+    backgroundColor: '#4A90E2',
     borderRadius: 12,
     paddingVertical: 15,
     alignItems: 'center',

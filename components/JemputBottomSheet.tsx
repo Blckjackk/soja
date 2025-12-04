@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   statusCard: {
-    backgroundColor: '#FDB44B',
+    backgroundColor: '#4A90E2',
     borderRadius: 20,
     marginBottom: 12,
     paddingVertical: 14,
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     bottom: -6,
     left: '50%',
     transform: [{ translateX: -22 }],
-    backgroundColor: '#FDB44B',
+    backgroundColor: '#4A90E2',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 14,
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     // Wrapper for icon button
   },
   actionIconWrapper: {
-    backgroundColor: '#FDB44B',
+    backgroundColor: '#4A90E2',
     borderRadius: 25,
     width: 50,
     height: 50,

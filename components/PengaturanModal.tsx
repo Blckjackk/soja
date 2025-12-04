@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Dimensions, KeyboardAvoidingView, Modal, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
@@ -128,7 +127,7 @@ const styles = StyleSheet.create({
   formInput: {
     backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: '#FDB44B',
+    borderColor: '#4A90E2',
     borderRadius: 12,
     padding: 15,
     fontSize: 15,
@@ -165,7 +164,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   isiButton: {
-    backgroundColor: '#FDB44B',
+    backgroundColor: '#4A90E2',
     borderRadius: 12,
     paddingHorizontal: 30,
     justifyContent: 'center',
@@ -177,7 +176,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   tutupButton: {
-    backgroundColor: '#FDB44B',
+    backgroundColor: '#4A90E2',
     borderRadius: 12,
     paddingVertical: 15,
     alignItems: 'center',

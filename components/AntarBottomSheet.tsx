@@ -1,11 +1,11 @@
 import React, { useMemo, useRef } from 'react';
 import {
-    Animated,
-    Dimensions,
-    PanResponder,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Animated,
+  Dimensions,
+  PanResponder,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Text } from 'react-native-paper';
 
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   travelInfoCard: {
-    backgroundColor: '#FDB44B',
+    backgroundColor: '#4A90E2',
     borderRadius: 20,
     marginBottom: 12,
     paddingVertical: 14,

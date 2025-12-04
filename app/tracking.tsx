@@ -121,7 +121,7 @@ export default function TrackingScreen() {
             id="pickup"
             coordinate={lokasiAwal}
           >
-            <View style={[styles.marker, { backgroundColor: '#FF6B4A' }]} />
+            <View style={[styles.marker, { backgroundColor: '#4A90E2' }]} />
           </MapLibreGL.PointAnnotation>
 
           {/* Marker Lokasi Tujuan */}
@@ -204,7 +204,7 @@ export default function TrackingScreen() {
               <IconButton
                 icon="chat"
                 mode="contained"
-                containerColor="#FDB44B"
+                containerColor="#4A90E2"
                 iconColor="white"
                 size={24}
                 onPress={() => {}}
@@ -212,7 +212,7 @@ export default function TrackingScreen() {
               <IconButton
                 icon="phone"
                 mode="contained"
-                containerColor="#FDB44B"
+                containerColor="#4A90E2"
                 iconColor="white"
                 size={24}
                 onPress={() => {}}
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#FF6B4A',
+    backgroundColor: '#4A90E2',
     borderWidth: 3,
     borderColor: 'white',
   },
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   statusCard: {
-    backgroundColor: '#FDB44B',
+    backgroundColor: '#4A90E2',
     borderRadius: 16,
     marginBottom: 16,
   },
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   locationIconEnd: {
-    backgroundColor: '#FF6B4A',
+    backgroundColor: '#4A90E2',
     marginRight: 12,
   },
   locationInfo: {
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   driverAvatar: {
-    backgroundColor: '#FDB44B',
+    backgroundColor: '#4A90E2',
     marginRight: 12,
   },
   driverInfo: {

@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   callButton: {
-    backgroundColor: '#FF6B4A',
+    backgroundColor: '#4A90E2',
     width: 48,
     height: 48,
     borderRadius: 24,
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   tutupButton: {
-    backgroundColor: '#FDB44B',
+    backgroundColor: '#4A90E2',
     borderRadius: 25,
     paddingVertical: 8,
   },

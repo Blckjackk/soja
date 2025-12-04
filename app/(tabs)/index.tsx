@@ -46,6 +46,7 @@ export default function HomeScreen() {
   const handlePinSubmit = () => {
     if (pin.length >= 4) {
       setShowPinModal(false);
+      setPin(''); // Reset PIN setelah submit
       setShowPengaturanModal(true);
     }
   };
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   menuCardDarurat: {
-    backgroundColor: '#FF6B4A',
+    backgroundColor: '#4A90E2',
   },
   menuContent: {
     alignItems: 'center',
@@ -320,6 +321,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   voiceButton: {
-    backgroundColor: '#FDB44B',
+    backgroundColor: '#4A90E2',
   },
 });

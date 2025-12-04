@@ -277,11 +277,11 @@ export default function LocationModal({ visible, onClose, onSubmit, title }: Loc
                   value={destination}
                   onChangeText={handleDestinationChange}
                   mode="outlined"
-                  left={<TextInput.Icon icon="flag" color="#FF6B4A" />}
+                  left={<TextInput.Icon icon="flag" color="#4A90E2" />}
                   right={searchingDest ? <TextInput.Icon icon={() => <ActivityIndicator size={20} />} /> : null}
                   style={styles.input}
                   outlineColor="#e0e0e0"
-                  activeOutlineColor="#FF6B4A"
+                  activeOutlineColor="#4A90E2"
                   placeholder="Cth: Stasiun Gambir"
                   disabled={loading}
                   onFocus={() => setShowDestSuggestions(true)}
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   errorText: {
-    color: '#FF6B4A',
+    color: '#4A90E2',
     fontSize: 12,
     marginTop: 8,
     marginLeft: 4,
