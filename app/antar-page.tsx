@@ -92,7 +92,7 @@ export default function AntarMapsScreen() {
       {/* MapLibre Map dengan MapTiler */}
       <MapLibreGL.MapView
         style={styles.map}
-        styleURL={`https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`}
+        styleURL={`https://api.maptiler.com/maps/topo-v2/style.json?key=${MAPTILER_API_KEY}`}
       >
         <MapLibreGL.Camera
           zoomLevel={9}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, KeyboardAvoidingView, Modal, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
@@ -29,13 +29,10 @@ export default function PengaturanModal({
     <Modal
       visible={visible}
       transparent={true}
-      animationType="slide"
+      animationType="fade"
       onRequestClose={onClose}
     >
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.modalOverlay}
-      >
+      <View style={styles.modalOverlay}>
         <View style={styles.settingsModalContent}>
           <Text style={styles.settingsModalTitle}>Pengaturan</Text>
           
@@ -88,7 +85,7 @@ export default function PengaturanModal({
             <Text style={styles.pinFooterLink}>Syarat & Ketentuan</Text>
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }
