@@ -17,27 +17,52 @@ export default function AntarMapsScreen() {
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null);
   const [routeCoordinates, setRouteCoordinates] = useState<number[][]>([]);
 
-  // Koordinat Bandung ke Jakarta
-  const lokasiTravel = [107.5794, -6.9389]; // Terminal Leuwipanjang
-  const lokasiTujuan = [106.8302, -6.1754]; // Stasiun Gambir
+  // Ambil koordinat dari params kalau ada, kalau gak ada pakai default Bandung-Jakarta
+  const pickupLng = params.pickupLng ? parseFloat(params.pickupLng as string) : 107.5794;
+  const pickupLat = params.pickupLat ? parseFloat(params.pickupLat as string) : -6.9389;
+  const destLng = params.destLng ? parseFloat(params.destLng as string) : 106.8451;
+  const destLat = params.destLat ? parseFloat(params.destLat as string) : -6.1754;
 
-  // Fetch route dari MapTiler
+  // Koordinat - Default: Bandung (Terminal Leuwipanjang) ke Jakarta (Gambir)
+  const lokasiTravel = [pickupLng, pickupLat]; // [longitude, latitude]
+  const lokasiTujuan = [destLng, destLat];
+
+  // Fetch route dari MapTiler Directions API
   useEffect(() => {
-    fetchRoute();
-  }, []);
+    if (lokasiTravel[0] && lokasiTravel[1] && lokasiTujuan[0] && lokasiTujuan[1]) {
+      fetchRoute();
+    }
+  }, [lokasiTravel[0], lokasiTravel[1], lokasiTujuan[0], lokasiTujuan[1]]);
 
   const fetchRoute = async () => {
     try {
-      const url = `https://api.maptiler.com/routing/car/${lokasiTravel[0]},${lokasiTravel[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      // Format: /directions/driving/{lon},{lat};{lon},{lat}.json
+      const url = `https://api.maptiler.com/directions/driving/${lokasiTravel[0]},${lokasiTravel[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      
+      console.log('🗺️ Fetching Bandung-Jakarta route...');
       const response = await fetch(url);
-      const data = await response.json();
+      const text = await response.text();
+      
+      if (!response.ok) {
+        console.error('❌ MapTiler API Error:', response.status, text);
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const data = JSON.parse(text);
+      console.log('✅ Route response:', data.routes ? 'SUCCESS' : 'NO ROUTES');
 
-      if (data.routes && data.routes[0]) {
+      if (data.routes && data.routes[0] && data.routes[0].geometry) {
         const coordinates = data.routes[0].geometry.coordinates;
+        const distance = data.routes[0].distance;
+        const duration = data.routes[0].duration;
+        console.log(`📍 Route: ${coordinates.length} points, ${(distance/1000).toFixed(1)}km, ${(duration/60).toFixed(0)}min`);
         setRouteCoordinates(coordinates);
+      } else {
+        console.warn('⚠️ No route found, using straight line');
+        setRouteCoordinates([lokasiTravel, lokasiTujuan]);
       }
     } catch (error) {
-      console.error('Error fetching route:', error);
+      console.error('❌ Error fetching route:', error);
       setRouteCoordinates([lokasiTravel, lokasiTujuan]);
     }
   };
@@ -67,11 +92,12 @@ export default function AntarMapsScreen() {
         styleURL={`https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`}
       >
         <MapLibreGL.Camera
-          zoomLevel={8}
+          zoomLevel={9}
           centerCoordinate={[
             (lokasiTravel[0] + lokasiTujuan[0]) / 2,
             (lokasiTravel[1] + lokasiTujuan[1]) / 2,
           ]}
+          animationDuration={1500}
         />
 
         {/* Route Line (Biru) */}
@@ -80,6 +106,7 @@ export default function AntarMapsScreen() {
             id="routeSource"
             shape={{
               type: 'Feature',
+              properties: {},
               geometry: {
                 type: 'LineString',
                 coordinates: routeCoordinates,
@@ -131,8 +158,8 @@ export default function AntarMapsScreen() {
         departureTime="14:00"
         estimatedArrival="16:30"
         travelOrigin={params.pickup as string || "Terminal Leuwipanjang, Bandung"}
-        destination={params.destination as string || "Stasiun Gambir, Jakarta"}
-        distance="10 km"
+        destination={params.destination as string || "Gambir, Jakarta Pusat"}
+        distance="150 km"
         selectedSeat={selectedSeat}
         seats={seats}
         onSeatSelect={handleSeatSelect}

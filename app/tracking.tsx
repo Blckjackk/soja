@@ -15,27 +15,42 @@ export default function TrackingScreen() {
   const params = useLocalSearchParams();
   const [routeCoordinates, setRouteCoordinates] = useState<number[][]>([]);
 
-  // Koordinat lokasi awal dan tujuan (bisa diganti)
-  const lokasiAwal = [107.6191, -6.9175]; // [longitude, latitude]
-  const lokasiTujuan = [107.6300, -6.9250];
+  // Koordinat Bandung - Cicadas ke Pasteur
+  const lokasiAwal = [107.6191, -6.9175]; // Cicadas [longitude, latitude]
+  const lokasiTujuan = [107.6095, -6.9147]; // Pasteur
 
-  // Fetch route dari MapTiler
+  // Fetch route dari MapTiler Directions API
   useEffect(() => {
     fetchRoute();
   }, []);
 
   const fetchRoute = async () => {
     try {
-      const url = `https://api.maptiler.com/routing/car/${lokasiAwal[0]},${lokasiAwal[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      // Format: /directions/driving/{lon},{lat};{lon},{lat}.json
+      const url = `https://api.maptiler.com/directions/driving/${lokasiAwal[0]},${lokasiAwal[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      
+      console.log('🗺️ Fetching tracking route...');
       const response = await fetch(url);
-      const data = await response.json();
+      const text = await response.text();
+      
+      if (!response.ok) {
+        console.error('❌ MapTiler API Error:', response.status, text);
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const data = JSON.parse(text);
+      console.log('✅ Route response:', data.routes ? 'SUCCESS' : 'NO ROUTES');
 
-      if (data.routes && data.routes[0]) {
+      if (data.routes && data.routes[0] && data.routes[0].geometry) {
         const coordinates = data.routes[0].geometry.coordinates;
+        console.log('📍 Route points:', coordinates.length);
         setRouteCoordinates(coordinates);
+      } else {
+        console.warn('⚠️ No route found, using straight line');
+        setRouteCoordinates([lokasiAwal, lokasiTujuan]);
       }
     } catch (error) {
-      console.error('Error fetching route:', error);
+      console.error('❌ Error fetching route:', error);
       setRouteCoordinates([lokasiAwal, lokasiTujuan]);
     }
   };
@@ -63,8 +78,12 @@ export default function TrackingScreen() {
           styleURL={`https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`}
         >
           <MapLibreGL.Camera
-            zoomLevel={14}
-            centerCoordinate={lokasiAwal}
+            zoomLevel={13}
+            centerCoordinate={[
+              (lokasiAwal[0] + lokasiTujuan[0]) / 2,
+              (lokasiAwal[1] + lokasiTujuan[1]) / 2
+            ]}
+            animationDuration={1000}
           />
 
           {/* Route Line */}
@@ -73,6 +92,7 @@ export default function TrackingScreen() {
               id="routeSource"
               shape={{
                 type: 'Feature',
+                properties: {},
                 geometry: {
                   type: 'LineString',
                   coordinates: routeCoordinates,

@@ -16,27 +16,50 @@ export default function JemputMapsScreen() {
   const params = useLocalSearchParams();
   const [routeCoordinates, setRouteCoordinates] = useState<number[][]>([]);
 
-  // Koordinat Bandung - Dago ke Pasteur  
-  const lokasiAwal = [107.6191, -6.8700]; // [longitude, latitude]
-  const lokasiTujuan = [107.5975, -6.9025];
+  // Ambil koordinat dari params kalau ada, kalau gak ada pakai default Bandung
+  const pickupLng = params.pickupLng ? parseFloat(params.pickupLng as string) : 107.6098;
+  const pickupLat = params.pickupLat ? parseFloat(params.pickupLat as string) : -6.8915;
+  const destLng = params.destLng ? parseFloat(params.destLng as string) : 107.6095;
+  const destLat = params.destLat ? parseFloat(params.destLat as string) : -6.9147;
+
+  // Koordinat Bandung - Default: Dago (ITB) ke Pasteur (RS Hasan Sadikin)
+  const lokasiAwal = [pickupLng, pickupLat]; // [longitude, latitude]
+  const lokasiTujuan = [destLng, destLat];
 
   // Fetch route dari MapTiler Directions API
   useEffect(() => {
-    fetchRoute();
-  }, []);
+    if (lokasiAwal[0] && lokasiAwal[1] && lokasiTujuan[0] && lokasiTujuan[1]) {
+      fetchRoute();
+    }
+  }, [lokasiAwal[0], lokasiAwal[1], lokasiTujuan[0], lokasiTujuan[1]]);
 
   const fetchRoute = async () => {
     try {
-      const url = `https://api.maptiler.com/routing/car/${lokasiAwal[0]},${lokasiAwal[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      // Format: /directions/{profile}/{coordinates}.json
+      const url = `https://api.maptiler.com/directions/driving/${lokasiAwal[0]},${lokasiAwal[1]};${lokasiTujuan[0]},${lokasiTujuan[1]}.json?key=${MAPTILER_API_KEY}`;
+      
+      console.log('🗺️ Fetching route from MapTiler...');
       const response = await fetch(url);
-      const data = await response.json();
+      const text = await response.text();
+      
+      if (!response.ok) {
+        console.error('❌ MapTiler API Error:', response.status, text);
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const data = JSON.parse(text);
+      console.log('✅ Route response:', data.routes ? 'SUCCESS' : 'NO ROUTES');
 
-      if (data.routes && data.routes[0]) {
+      if (data.routes && data.routes[0] && data.routes[0].geometry) {
         const coordinates = data.routes[0].geometry.coordinates;
+        console.log('📍 Route points:', coordinates.length);
         setRouteCoordinates(coordinates);
+      } else {
+        console.warn('⚠️ No route found, using straight line');
+        setRouteCoordinates([lokasiAwal, lokasiTujuan]);
       }
     } catch (error) {
-      console.error('Error fetching route:', error);
+      console.error('❌ Error fetching route:', error);
       setRouteCoordinates([lokasiAwal, lokasiTujuan]);
     }
   };
@@ -59,8 +82,12 @@ export default function JemputMapsScreen() {
         styleURL={`https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`}
       >
         <MapLibreGL.Camera
-          zoomLevel={14}
-          centerCoordinate={lokasiAwal}
+          zoomLevel={13}
+          centerCoordinate={[
+            (lokasiAwal[0] + lokasiTujuan[0]) / 2,
+            (lokasiAwal[1] + lokasiTujuan[1]) / 2
+          ]}
+          animationDuration={1000}
         />
 
         {/* Route Line (Biru) */}
@@ -69,6 +96,7 @@ export default function JemputMapsScreen() {
             id="routeSource"
             shape={{
               type: 'Feature',
+              properties: {},
               geometry: {
                 type: 'LineString',
                 coordinates: routeCoordinates,
@@ -120,8 +148,8 @@ export default function JemputMapsScreen() {
         driverPlate="B 1234 ABC"
         driverRating={4.9}
         estimatedTime="5 menit"
-        pickupAddress={(params.pickup as string) || "Jl. Cempaka no. 5, Lantai 5, Bandung"}
-        destinationAddress={(params.destination as string) || "Jl. Melati no. 7, Lantai 5 Bandung"}
+        pickupAddress={(params.pickup as string) || "ITB Ganesha, Bandung"}
+        destinationAddress={(params.destination as string) || "RS Hasan Sadikin, Pasteur, Bandung"}
         onChatPress={handleChatPress}
         onPhonePress={handlePhonePress}
       />
