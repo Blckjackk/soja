@@ -168,7 +168,11 @@ export default function AntarBottomSheet({
                     ]}
                     onPress={() => !isOccupied && onSeatSelect?.(seatNumber)}
                     disabled={isOccupied}
-                  />
+                  >
+                    <Text style={[styles.seatNumber, isSelected && styles.seatNumberSelected]}>
+                      {seatNumber}
+                    </Text>
+                  </TouchableOpacity>
                 );
               })}
             </View>
@@ -190,7 +194,11 @@ export default function AntarBottomSheet({
                     ]}
                     onPress={() => !isOccupied && onSeatSelect?.(seatNumber)}
                     disabled={isOccupied}
-                  />
+                  >
+                    <Text style={[styles.seatNumber, isSelected && styles.seatNumberSelected]}>
+                      {seatNumber}
+                    </Text>
+                  </TouchableOpacity>
                 );
               })}
             </View>
@@ -212,7 +220,11 @@ export default function AntarBottomSheet({
                         isSelected && styles.seatSelected,
                       ]}
                       onPress={() => onSeatSelect?.(seatNumber)}
-                    />
+                    >
+                      <Text style={[styles.seatNumber, isSelected && styles.seatNumberSelected]}>
+                        {seatNumber}
+                      </Text>
+                    </TouchableOpacity>
                   );
                 })}
               </View>
@@ -335,6 +347,8 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 10,
     backgroundColor: '#D1D5DB',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   rightSection: {
     flexDirection: 'column',
@@ -349,11 +363,21 @@ const styles = StyleSheet.create({
     height: 42,
     borderRadius: 10,
     backgroundColor: '#D1D5DB',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   seatOccupied: {
     backgroundColor: '#9CA3AF',
   },
   seatSelected: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#4A90E2',
+  },
+  seatNumber: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#666',
+  },
+  seatNumberSelected: {
+    color: '#FFF',
   },
 });

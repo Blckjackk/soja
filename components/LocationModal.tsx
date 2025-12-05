@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ActivityIndicator, Button, Card, Divider, IconButton, Modal, Portal, Text, TextInput } from 'react-native-paper';
 
 interface LocationModalProps {
@@ -214,11 +214,10 @@ export default function LocationModal({ visible, onClose, onSubmit, title }: Loc
       <Modal
         visible={visible}
         onDismiss={onClose}
+        dismissable={false}
         contentContainerStyle={styles.modalContainer}
       >
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
+        <View style={styles.modalWrapper}>
           <Card style={styles.card}>
             <Card.Title
               title={`${title} - Pilih Lokasi`}
@@ -341,7 +340,7 @@ export default function LocationModal({ visible, onClose, onSubmit, title }: Loc
               </Button>
             </Card.Actions>
           </Card>
-        </KeyboardAvoidingView>
+        </View>
       </Modal>
     </Portal>
   );
@@ -350,6 +349,9 @@ export default function LocationModal({ visible, onClose, onSubmit, title }: Loc
 const styles = StyleSheet.create({
   modalContainer: {
     padding: 20,
+  },
+  modalWrapper: {
+    maxHeight: '90%',
   },
   card: {
     backgroundColor: 'white',

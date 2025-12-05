@@ -82,10 +82,8 @@ export default function HomeScreen() {
       {/* Header dengan Logo */}
       <View style={styles.header}>
         <Image 
-          source={require('@/assets/images/Logo Soja.png')} 
+          source={require('@/assets/images/Soja Logo.png')} 
           style={styles.logo}
-          width={120}
-          height={100}
           resizeMode="contain"
         />
       </View>
@@ -191,7 +189,9 @@ export default function HomeScreen() {
       {/* Location Modal */}
       <LocationModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={() => {
+          setModalVisible(false);
+        }}
         onSubmit={handleLocationSubmit}
         title={modalTitle}
       />
